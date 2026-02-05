@@ -6,7 +6,7 @@ function corsHeaders(origin) {
   // If you want to lock this down, replace "*" with "https://YOUR_QUALTRICS_DOMAIN"
   // Example: https://yourschool.qualtrics.com
   return {
-    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Origin": "https://csunsbs.yul1.qualtrics.com",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
     "Access-Control-Max-Age": "86400"
