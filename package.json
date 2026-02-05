@@ -1,0 +1,8 @@
+{
+  "name": "qualtrics-openai-proxy",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "openai": "^6.16.0"
+  }
+}
