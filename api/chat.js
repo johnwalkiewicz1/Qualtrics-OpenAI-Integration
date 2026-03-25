@@ -76,7 +76,7 @@ export default async function handler(req, res) {
     const requestedModel = safeString(body.model);
     const model = pickModel(requestedModel);
     const temperature = pickTemperature(body.temperature);
-    const max_tokens = pickMaxTokens(body.max_tokens);
+    const max_tokens = 1;
 
     console.log("Incoming model from Qualtrics:", JSON.stringify(requestedModel));
     console.log("Model sent to OpenAI:", JSON.stringify(model));
