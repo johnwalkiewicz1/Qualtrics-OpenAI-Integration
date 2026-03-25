@@ -4,15 +4,13 @@ const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-// Safer to control allowed models on the server.
-// Add/remove models here as needed.
 const ALLOWED_MODELS = new Set([
-  "gpt-5.4-nano",
-  "gpt-5.4-mini",
-  "gpt-5.4"
+  "gpt-5-nano",
+  "gpt-5-mini",
+  "gpt-5.2"
 ]);
 
-const DEFAULT_MODEL = "gpt-5.4-nano";
+const DEFAULT_MODEL = "gpt-5-nano";
 
 function corsHeaders(origin) {
   return {
@@ -45,7 +43,6 @@ function pickMaxTokens(value) {
 }
 
 export default async function handler(req, res) {
-  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     res.status(204).setHeader("Content-Type", "text/plain");
     for (const [k, v] of Object.entries(corsHeaders(req.headers.origin))) {
@@ -87,10 +84,7 @@ export default async function handler(req, res) {
     const messages = [];
 
     if (system) {
-      messages.push({
-        role: "system",
-        content: system
-      });
+      messages.push({ role: "system", content: system });
     }
 
     for (const m of history) {
@@ -101,23 +95,15 @@ export default async function handler(req, res) {
       const content = m.content.trim();
       if (!content) continue;
 
-      messages.push({
-        role: m.role,
-        content
-      });
+      messages.push({ role: m.role, content });
     }
 
     if (prompt) {
-      messages.push({
-        role: "user",
-        content: prompt
-      });
+      messages.push({ role: "user", content: prompt });
     }
 
     if (messages.length === 0) {
-      return res.status(400).json({
-        error: "No valid messages were provided"
-      });
+      return res.status(400).json({ error: "No valid messages were provided" });
     }
 
     const requestPayload = {
@@ -125,7 +111,6 @@ export default async function handler(req, res) {
       messages
     };
 
-    // Only include optional params when valid.
     if (temperature !== undefined) {
       requestPayload.temperature = temperature;
     }
@@ -134,7 +119,6 @@ export default async function handler(req, res) {
     }
 
     const completion = await client.chat.completions.create(requestPayload);
-
     const text = completion?.choices?.[0]?.message?.content ?? "";
 
     return res.status(200).json({
@@ -150,9 +134,8 @@ export default async function handler(req, res) {
       err?.message ||
       "Proxy failed";
 
-    return res.status(status).json({
-      error: message
-    });
+    return res.status(status).json({ error: message });
   }
+}
 }
 //Deploy check
