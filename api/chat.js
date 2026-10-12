@@ -1,8 +1,13 @@
 import OpenAI from "openai";
 
-const ORIGIN = "https://csunsbs.yul1.qualtrics.com";
+// The survey editor/preview runs on csunsbs.yul1.qualtrics.com; published survey links run on csunsbs.qualtrics.com.
+const ALLOWED_ORIGIN = /^https:\/\/csunsbs(\.[a-z0-9-]+)?\.qualtrics\.com$/;
 const MODELS = new Set(["gpt-5-nano", "gpt-5-mini", "gpt-5.2"]);
 const DEFAULT_SYSTEM = "You help university students write brief, supportive advice letters. Stay focused on this task. Do not solicit personal identifiers or offer professional medical, legal, or financial advice. Do not suggest follow-up contact with the recipient. Keep replies under 800 characters including spaces.";
+
+export function isAllowedOrigin(origin) {
+  return ALLOWED_ORIGIN.test(origin);
+}
 
 export function buildRequest(body) {
   if (!body || typeof body !== "object" || Array.isArray(body)) throw new Error("Invalid request.");
@@ -30,13 +35,14 @@ export function buildRequest(body) {
 }
 
 export default async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", ORIGIN);
+  const origin = req.headers.origin;
+  if (origin && ALLOWED_ORIGIN.test(origin)) res.setHeader("Access-Control-Allow-Origin", origin);
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   res.setHeader("Access-Control-Max-Age", "86400");
   res.setHeader("Vary", "Origin");
   res.setHeader("Cache-Control", "no-store");
-  if (req.headers.origin && req.headers.origin !== ORIGIN) return res.status(403).json({ error: "Origin not allowed." });
+  if (origin && !ALLOWED_ORIGIN.test(origin)) return res.status(403).json({ error: "Origin not allowed." });
   if (req.method === "OPTIONS") return res.status(204).end();
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed." });
   let request;
